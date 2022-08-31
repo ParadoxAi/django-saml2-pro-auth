@@ -31,7 +31,8 @@ def get_provider_config(req):
         apm_provider = "amp;provider"
         customize_provider = ""
         if apm_provider in req["get_data"]:
-            customize_provider = req["get_data"].pop(apm_provider, "")
+            customize_provider = req["get_data"].get(apm_provider, "")
+            req["get_data"].pop(apm_provider, "") # remove legacy key
         provider = customize_provider or list(providers[0].keys())[0]
         req["get_data"]["provider"] = provider
 
