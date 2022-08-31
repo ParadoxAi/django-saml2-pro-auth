@@ -21,7 +21,18 @@ def get_provider_config(req):
     try:
         provider = req["get_data"]["provider"]
     except KeyError:
-        provider = list(providers[0].keys())[0]
+        # Some client send a post request with HTML decode, the new python, django detect wrong
+        # <WSGIRequest: POST '/sso/saml/?acs&amp;provider=AMGEN'>
+        # get_data: {
+        #       acs: '',
+        #       amp;provider: 'AMGEN',
+        #       provider: 'STARHUB'
+        # },
+        apm_provider = "amp;provider"
+        customize_provider = ""
+        if apm_provider in req["get_data"]:
+            customize_provider = req["get_data"].pop(apm_provider, "")
+        provider = customize_provider or list(providers[0].keys())[0]
         req["get_data"]["provider"] = provider
 
     for index, provider_obj in enumerate(providers):
